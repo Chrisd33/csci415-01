@@ -2,7 +2,7 @@
 // Assignment 1: ParallelSine
 // CSCI 415: Networking and Parallel Computation
 // Spring 2017
-// Name(s): 
+// Name(s):
 //
 // Sine implementation derived from slides here: http://15418.courses.cs.cmu.edu/spring2016/lecture/basicarch
 
@@ -27,18 +27,18 @@ void sine_serial(float *input, float *output)
   int i;
 
   for (i=0; i<N; i++) {
-      float value = input[i]; 
-      float numer = input[i] * input[i] * input[i]; 
-      int denom = 6; // 3! 
-      int sign = -1; 
-      for (int j=1; j<=TERMS;j++) 
-      { 
-         value += sign * numer / denom; 
-         numer *= input[i] * input[i]; 
-         denom *= (2*j+2) * (2*j+3); 
-         sign *= -1; 
-      } 
-      output[i] = value; 
+      float value = input[i];
+      float numer = input[i] * input[i] * input[i];
+      int denom = 6; // 3!
+      int sign = -1;
+      for (int j=1; j<=TERMS;j++)
+      {
+         value += sign * numer / denom;
+         numer *= input[i] * input[i];
+         denom *= (2*j+2) * (2*j+3);
+         sign *= -1;
+      }
+      output[i] = value;
     }
 }
 
@@ -48,40 +48,40 @@ void sine_serial(float *input, float *output)
 
 __global__ void sine_parallel(float *input, float *output)
 {
-	int idx = threadIdx.x;
-	float value = input[idx];
-	float numer = input[idx] * input[idx] * input[idx];
-	int denom = 6;
-	int sign = -1;
+        int idx = threadIdx.x;
+        float value = input[idx];
+        float numer = input[idx] * input[idx] * input[idx];
+        int denom = 6;
+        int sign = -1;
 
-	for (int j=1; j<=TERMS; j++)
-	{
-		value += sign * number / denom;
-		numer *= input[idx] * input[idx];
-		denom *= (2*j+2) * (2*j+3);
-		sign *= -1; 
-	}
-	output[idx] = value;
+        for (int j=1; j<=TERMS; j++)
+        {
+                value += sign * numer / denom;
+                numer *= input[idx] * input[idx];
+                denom *= (2*j+2) * (2*j+3);
+                sign *= -1;
+        }
+        output[idx] = value;
 }
 
 // BEGIN: timing and error checking routines (do not modify)
 
 // Returns the current time in microseconds
 long long start_timer() {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000000 + tv.tv_usec;
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
 
 // Prints the time elapsed since the specified time
 long long stop_timer(long long start_time, std::string name) {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	long long end_time = tv.tv_sec * 1000000 + tv.tv_usec;
-        std::cout << std::setprecision(5);	
-	std::cout << name << ": " << ((float) (end_time - start_time)) / (1000 * 1000) << " sec\n";
-	return end_time - start_time;
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        long long end_time = tv.tv_sec * 1000000 + tv.tv_usec;
+        std::cout << std::setprecision(5);
+        std::cout << name << ": " << ((float) (end_time - start_time)) / (1000 * 1000) << " sec\n";
+        return end_time - start_time;
 }
 
 void checkErrors(const char label[])
@@ -165,7 +165,6 @@ int main (int argc, char **argv)
 //Free Memory
   cudaFree(d_input);
   cudaFree(d_output);
-
 
   // Checking to make sure the CPU and GPU results match - Do not modify
   int errorCount = 0;
