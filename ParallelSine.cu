@@ -46,6 +46,24 @@ void sine_serial(float *input, float *output)
 // kernel function (CUDA device)
 // TODO: Implement your graphics kernel here. See assignment instructions for method information
 
+__global__ void sine_parallel(float *input, float *output)
+{
+	int idx = threadIdx.x;
+	float value = input[idx];
+	float numer = input[idx] * input[idx] * input[idx];
+	int denom = 6
+	int sign = -1;
+
+	for (int j=1; j<=TERMS; j++)
+	{
+		value += sign * number / denom;
+		numer *= input[idx] * input[idx];
+		denom *= (2*j+2) * (2*j+3);
+		sign *= -1; 
+	}
+	output[idx] = value;
+}
+
 // BEGIN: timing and error checking routines (do not modify)
 
 // Returns the current time in microseconds
@@ -114,6 +132,41 @@ int main (int argc, char **argv)
 
   //TODO: Prepare and run your kernel, make sure to copy your results back into h_gpu_result and display your timing results
   float *h_gpu_result = (float*)malloc(N*sizeof(float));
+
+//Delcaring arrays for GPU
+  float *d_input;
+  float *d_output;
+
+//Starting timer for GPU run time.
+  long long GPU_run_time = start_timer();
+
+//GPU Memory Allocation.
+  long long GPU_Memory_Allocation = start_timer();
+  cudaMalloc( (void **) &d_output, N*sizeof(float) );
+  cudaMalloc( (void **) &d_input, N*sizeof(float) );
+  long long GPU_Memory_Allocation = stop_timer(GPU_Memory_Allocation, "\nGPU Memory Allocation: ");
+
+//GPU Memory Copy to GPU.
+  long long GPU_Memory_copy = start_timer();
+  cudaMemcpy(d_input, h_input, N*sizeof(float), cudaMemcpyToDevice); //h_input????
+  long long GPU_Memory_copy = stop_timer(GPU_Memory_copy, "\nGPU Memory Copy to Device: ");
+
+//GPU Kernel Run Time.
+  long long GPU_Kernel_Run_Time = start_timer();
+  sine_parallel<<<12057,1024>>>(d_output, d_input);  //output before input????
+  long long GPU_Kernel_Run_Time = stop_timer(GPU_Kernel_Run_Time, "\nGPU Kernel Run Time: ");
+
+//GPU Memory Copy to Host.
+  long long memory_copy_to_host = start_timer();
+  cudaMemcpy(d_input, h_input, N*sizeof(float), cudaMemcpyHostToDevice);
+  long long memory_copy_to_host = stop_timer(memory_copy_to_host, "\n GPU Memory Copy to Host: ");
+
+//Total GPU Run Time.
+  long long total_run_time = stop_timer(GPU_run_time, "\n Total GPU Run Time: ");
+
+//Free Memory
+  cudaFree(d_input);
+  cudaFree(d_output);
 
   // Checking to make sure the CPU and GPU results match - Do not modify
   int errorCount = 0;
